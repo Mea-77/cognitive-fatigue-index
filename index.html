@@ -5,7 +5,26 @@ function reset(){clearTimeout(timer);clearTimeout(delayTimer);phase='idle';times
 let faceModel=null,visionRunning=false,visionRaf=0,visionStart=0,blinkCount=0,closedFrames=0,openFrames=0,wasClosed=false,lastBlink=0,lastVideoTime=-1,visionSession=null;
 const pointDistance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function eyeAspectRatio(points,ids){const p=ids.map(i=>points[i]);return(pointDistance(p[1],p[5])+pointDistance(p[2],p[4]))/(2*pointDistance(p[0],p[3]));}
-async function loadVisionModel(){if(faceModel)return;const {FaceLandmarker,FilesetResolver}=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm');const files=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm');faceModel=await FaceLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',delegate:'CPU'},runningMode:'VIDEO',numFaces:1});}
+async function loadVisionModel(){
+ if(faceModel)return;
+ const providers=[
+  {module:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs',wasm:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'},
+  {module:'https://unpkg.com/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs',wasm:'https://unpkg.com/@mediapipe/tasks-vision@0.10.22/wasm'}
+ ];
+ let lastError;
+ for(const provider of providers){
+  try{
+   const {FaceLandmarker,FilesetResolver}=await import(provider.module);
+   const files=await FilesetResolver.forVisionTasks(provider.wasm);
+   faceModel=await FaceLandmarker.createFromOptions(files,{
+    baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',delegate:'CPU'},
+    runningMode:'VIDEO',numFaces:1
+   });
+   return;
+  }catch(error){lastError=error;console.warn('MediaPipe provider failed:',provider.module,error);}
+ }
+ throw new Error('تعذر تحميل مكتبة تحليل العين من مزودي الخدمة. تحقق من اتصال الإنترنت أو حظر CDN. '+(lastError?.message||''));
+}
 function visionLoop(){if(!visionRunning)return;try{const video=$('video');if(video.readyState>=2&&video.currentTime!==lastVideoTime){lastVideoTime=video.currentTime;const face=faceModel.detectForVideo(video,performance.now()).faceLandmarks?.[0];if(face){$('faceStatus').textContent='متصل';const ratio=(eyeAspectRatio(face,[33,160,158,133,153,144])+eyeAspectRatio(face,[362,385,387,263,373,380]))/2;if(ratio<.19){closedFrames++;openFrames=0;if(closedFrames>=2)wasClosed=true;}else if(ratio>.22){openFrames++;if(wasClosed&&openFrames>=2&&performance.now()-lastBlink>250){blinkCount++;lastBlink=performance.now();$('blinks').textContent=blinkCount;}if(openFrames>=2){wasClosed=false;closedFrames=0;}}}else{$('faceStatus').textContent='لا يوجد وجه';wasClosed=false;closedFrames=0;openFrames=0;}}const sec=Math.floor((performance.now()-visionStart)/1000);$('eyeDuration').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');$('blinkRate').textContent=sec>=10?(blinkCount*60/sec).toFixed(1):'—';}catch(e){$('visionMessage').textContent='تعذر التحليل: '+e.message;stopCamera();return;}visionRaf=requestAnimationFrame(visionLoop);}
 function stopCamera(){if(visionRunning){const seconds=Math.round((performance.now()-visionStart)/1000);if(seconds>=10)visionSession={seconds,blinks:blinkCount,rate:+(blinkCount*60/seconds).toFixed(1)};}visionRunning=false;cancelAnimationFrame(visionRaf);if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const video=$('video');video.pause();video.srcObject=null;$('cameraPlaceholder').classList.remove('hidden');$('cameraToggle').textContent='تشغيل الكاميرا';$('cameraToggle').disabled=false;$('faceStatus').textContent='—';$('saveBlinks').disabled=!visionSession;}
 $('cameraToggle').onclick=async()=>{if(stream){stopCamera();return;}const button=$('cameraToggle');button.disabled=true;$('visionMessage').textContent='جارٍ تحميل نموذج التحليل وطلب إذن الكاميرا...';try{if(!navigator.mediaDevices?.getUserMedia)throw Error('يتطلب التشغيل HTTPS وإذن الكاميرا');await loadVisionModel();stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});$('video').srcObject=stream;await $('video').play();visionRunning=true;visionStart=performance.now();blinkCount=0;closedFrames=0;openFrames=0;wasClosed=false;lastBlink=0;lastVideoTime=-1;visionSession=null;$('blinks').textContent='0';$('blinkRate').textContent='—';$('eyeDuration').textContent='00:00';$('saveBlinks').disabled=true;$('cameraPlaceholder').classList.add('hidden');button.textContent='إيقاف الكاميرا';$('visionMessage').textContent='الكاميرا تعمل. حافظ على إضاءة جيدة. عتبات الرمش تجريبية وقد تتأثر بزاوية الوجه والنظارات.';visionLoop();}catch(e){$('visionMessage').textContent='تعذر التشغيل: '+e.message;stopCamera();}finally{button.disabled=false;}};
