@@ -1,33 +1,1021 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>مؤشر الإجهاد المعرفي</title><script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>body{font-family:Tahoma,Arial,sans-serif;background:#f4f7f8;color:#173c43}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.panel{background:white;border-radius:20px;padding:24px;box-shadow:0 2px 14px #173c4310}.primary{background:#1d5d67;color:white;padding:12px 20px;border-radius:12px}.secondary{background:#e6f0f2;padding:12px 20px;border-radius:12px}.nav.active{background:#1d5d67;color:white}.nav{padding:12px;border-radius:12px;text-align:right;width:100%}input{border:1px solid #ccd8db;border-radius:10px;padding:10px;max-width:100%}</style></head><body><div class="min-h-screen md:flex"><aside class="bg-[#0f3a42] text-white p-6 md:w-64"><h1 class="text-xl font-bold mb-1">◉ مؤشر الإجهاد المعرفي</h1><p class="text-xs text-slate-300 mb-8">Cognitive Fatigue Index</p><nav class="space-y-2"><button class="nav active" data-page="home">الرئيسية</button><button class="nav" data-page="reaction">اختبار الاستجابة</button><button class="nav" data-page="eye">تحليل حركة العين</button><button class="nav" data-page="results">النتائج والتقارير</button><button class="nav" data-page="settings">الإعدادات</button></nav><p class="text-xs text-slate-300 mt-10">اختبار تجريبي للأداء، وليس تشخيصًا طبيًا</p></aside><main class="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full"><header class="panel mb-6"><h2 id="heading" class="text-2xl font-bold">الرئيسية</h2><p class="text-sm text-slate-500 mt-2">قياس الاستجابة البصرية ومتابعة الأداء عبر الجلسات</p></header><section id="home" class="page space-y-5"><div class="rounded-3xl bg-gradient-to-l from-[#0f3a42] to-[#1d5d67] text-white p-8"><h3 class="text-2xl font-bold">معًا نحو تركيز أفضل وأداء أعلى</h3><p class="my-4 text-sm">ابدأ الاختبارات، ثم راجع نتائجك وسجل جلساتك.</p><button class="bg-[#e07a5f] px-6 py-3 rounded-xl" onclick="show('reaction')">ابدأ الاختبار الآن</button></div><div class="grid md:grid-cols-3 gap-5"><div class="panel"><h3 class="font-bold text-lg">⏱ زمن الاستجابة</h3><p class="text-sm text-slate-500 my-4">خمس محاولات بفترات انتظار عشوائية وكشف الاستجابة المبكرة.</p><button class="primary" onclick="show('reaction')">ابدأ</button></div><div class="panel"><h3 class="font-bold text-lg">◉ حركة العين</h3><p class="text-sm text-slate-500 my-4">كاميرا مباشرة مع فحص تفاعلي بصري. لا يدّعي قياس اتجاه النظر تلقائيًا.</p><button class="primary" onclick="show('eye')">افتح</button></div><div class="panel"><h3 class="font-bold text-lg">▥ التقارير</h3><p class="text-sm text-slate-500 my-4">سجل الجلسات والرسوم البيانية وتصدير CSV.</p><button class="primary" onclick="show('results')">عرض</button></div></div></section><section id="reaction" class="page hidden space-y-5"><div class="grid md:grid-cols-3 gap-5"><div class="panel md:col-span-2 text-center"><h3 class="font-bold mb-4">اختبار زمن الاستجابة البصرية</h3><p id="instruction" class="mb-6">اضغط بدء الجلسة ثم انتظر الدائرة الخضراء</p><button id="target" class="rounded-full w-44 h-44 bg-slate-200 text-4xl font-bold" disabled>+</button><p class="text-sm text-slate-500 mt-5">يمكنك الضغط على المسافة عند ظهور الأخضر</p><p class="mt-5" id="progress">0 / 5</p></div><div class="panel space-y-4"><div>المحاولة الأخيرة: <strong id="last">—</strong></div><div>الأسرع: <strong id="best">—</strong></div><div>المتوسط: <strong id="avg">—</strong></div><div>الضغط المبكر: <strong id="early">0</strong></div><button id="start" class="primary w-full">ابدأ الجلسة</button><button id="reset" class="secondary w-full">إعادة الضبط</button></div></div></section><section id="eye" class="page hidden space-y-5"><div class="grid md:grid-cols-3 gap-5"><div class="panel md:col-span-2"><h3 class="font-bold mb-3">تحليل حركة العين والرمش بالكاميرا</h3><div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video"><video id="video" class="w-full h-full object-cover scale-x-[-1]" autoplay playsinline muted></video><div id="cameraPlaceholder" class="absolute inset-0 grid place-items-center text-white">الكاميرا متوقفة</div></div><div class="flex gap-3 mt-4 flex-wrap"><button id="cameraToggle" class="primary">تشغيل الكاميرا</button><button id="eyeStart" class="secondary">بدء اختبار متابعة الهدف بالنقر</button></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"><div class="bg-slate-50 rounded-xl p-3 text-center text-sm">عدد الرمشات<strong id="blinks" class="block text-2xl text-[#0f3a42]">0</strong></div><div class="bg-slate-50 rounded-xl p-3 text-center text-sm">رمشة / دقيقة<strong id="blinkRate" class="block text-2xl text-[#0f3a42]">—</strong></div><div class="bg-slate-50 rounded-xl p-3 text-center text-sm">مدة التحليل<strong id="eyeDuration" class="block text-2xl text-[#0f3a42]">00:00</strong></div><div class="bg-slate-50 rounded-xl p-3 text-center text-sm">تتبع الوجه<strong id="faceStatus" class="block text-lg text-[#0f3a42]">—</strong></div></div><p id="visionMessage" class="text-xs text-slate-500 mt-4">يتم تحليل الفيديو داخل المتصفح ولا يتم رفعه. قياس الرمش تجريبي، ولا يحدد الإجهاد المعرفي طبيًا.</p><button id="saveBlinks" class="secondary mt-3" disabled>حفظ جلسة الرمش</button></div><div class="panel"><h3 class="font-bold mb-3">اختبار متابعة الهدف</h3><div id="eyeArea" class="relative bg-[#e6f0f2] rounded-xl h-64 overflow-hidden"><button id="eyeTarget" class="absolute hidden w-10 h-10 bg-[#e07a5f] rounded-full text-white" style="top:45%;left:45%">●</button></div><p id="eyeInfo" class="text-sm mt-4">اضغط بدء الاختبار ثم انقر على الهدف في خمسة مواضع.</p><button id="eyeSave" class="primary mt-4 w-full" disabled>حفظ نتيجة الاختبار</button></div></div></section><section id="results" class="page hidden space-y-5"><div class="grid md:grid-cols-3 gap-5"><div class="panel"><p class="text-slate-500 text-sm">متوسط آخر جلسة</p><h3 id="resultAvg" class="text-3xl font-bold mt-2">—</h3></div><div class="panel"><p class="text-slate-500 text-sm">دقة الاستجابة</p><h3 id="resultAccuracy" class="text-3xl font-bold mt-2">—</h3></div><div class="panel"><p class="text-slate-500 text-sm">مؤشر الأداء التجريبي</p><h3 id="resultScore" class="text-3xl font-bold mt-2">—</h3></div></div><div class="panel"><h3 class="font-bold mb-4">زمن الاستجابة عبر المحاولات</h3><div class="h-64"><canvas id="chart"></canvas></div></div><div class="panel"><div class="flex justify-between items-center flex-wrap gap-3 mb-4"><h3 class="font-bold">سجل الجلسات</h3><button id="export" class="secondary">تصدير CSV</button></div><div class="overflow-x-auto"><table class="w-full text-sm text-right"><thead><tr class="border-b"><th class="p-3">التاريخ</th><th class="p-3">الاختبار</th><th class="p-3">النتيجة</th><th class="p-3">التفاصيل</th></tr></thead><tbody id="logs"></tbody></table></div><p class="text-xs text-slate-500 mt-4">المؤشر وصفي وتجريبي، وليس مقياسًا سريريًا للإجهاد.</p></div></section><section id="settings" class="page hidden"><div class="panel max-w-xl space-y-4"><h3 class="font-bold text-xl">الإعدادات</h3><label class="block">الاسم<input id="username" class="block w-full mt-2" placeholder="اسم المستخدم"></label><label class="block">البريد الإلكتروني<input id="email" type="email" class="block w-full mt-2" placeholder="اختياري"></label><label class="flex gap-3 items-center"><input type="checkbox" id="sound"> تنبيه صوتي عند ظهور المحفز</label><button id="saveSettings" class="primary">حفظ الإعدادات</button><p id="settingsMessage" class="text-sm text-emerald-700"></p><hr><button id="clearLogs" class="secondary">حذف سجل الجلسات المحلي</button><p class="text-xs text-slate-500">تُخزّن النتائج والإعدادات في هذا المتصفح فقط. لا تُرفع صور الكاميرا إلى خادم.</p></div></section></main></div><script>
-'use strict';const $=id=>document.getElementById(id),key='cfi_sessions_v2',settingsKey='cfi_settings_v2';let sessions=[],settings={},chart=null,phase='idle',timer=null,delayTimer=null,startedAt=0,times=[],early=0,eyeHits=0,eyeStarted=0,eyeResult=null,stream=null;try{sessions=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(sessions))sessions=[];settings=JSON.parse(localStorage.getItem(settingsKey)||'{}')}catch{sessions=[];settings={}}$('username').value=settings.name||'';$('email').value=settings.email||'';$('sound').checked=!!settings.sound;
-function persist(){try{localStorage.setItem(key,JSON.stringify(sessions))}catch{alert('تعذر حفظ النتائج محليًا')}}function show(id){if(id!=='reaction'&&phase!=='idle')reset();if(id!=='eye')stopCamera();document.querySelectorAll('.page').forEach(x=>x.classList.toggle('hidden',x.id!==id));document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('heading').textContent={home:'الرئيسية',reaction:'اختبار زمن الاستجابة',eye:'تحليل حركة العين',results:'النتائج والتقارير',settings:'الإعدادات'}[id];if(id==='results')renderResults();}document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>show(b.dataset.page));
-function reset(){clearTimeout(timer);clearTimeout(delayTimer);phase='idle';times=[];early=0;$('target').disabled=true;$('target').className='rounded-full w-44 h-44 bg-slate-200 text-4xl font-bold';$('target').textContent='+';$('start').disabled=false;$('last').textContent='—';$('best').textContent='—';$('avg').textContent='—';$('early').textContent='0';$('progress').textContent='0 / 5';$('instruction').textContent='اضغط بدء الجلسة ثم انتظر الدائرة الخضراء'}function beep(){if(!settings.sound)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const c=new A(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=740;g.gain.value=.05;o.start();o.stop(c.currentTime+.09);o.onended=()=>c.close()}catch{}}function next(){if(phase==='idle')return;if(times.length>=5){finish();return}phase='waiting';$('target').disabled=false;$('target').className='rounded-full w-44 h-44 bg-amber-400 text-white text-4xl font-bold';$('target').textContent='…';$('instruction').textContent='انتظر ظهور اللون الأخضر، ولا تضغط مبكرًا';delayTimer=setTimeout(()=>{if(phase!=='waiting')return;phase='ready';startedAt=performance.now();$('target').className='rounded-full w-44 h-44 bg-emerald-500 text-white text-4xl font-bold';$('target').textContent='اضغط!';$('instruction').textContent='اضغط الآن!';beep()},1500+Math.random()*2500)}function respond(){if(phase==='waiting'){clearTimeout(delayTimer);early++;$('early').textContent=early;$('instruction').textContent='ضغط مبكر! ستُعاد المحاولة';phase='pause';$('target').disabled=true;timer=setTimeout(next,900);return}if(phase!=='ready')return;const ms=Math.round(performance.now()-startedAt);times.push(ms);phase='pause';$('target').disabled=true;$('last').textContent=ms+' ms';$('best').textContent=Math.min(...times)+' ms';$('avg').textContent=Math.round(times.reduce((a,b)=>a+b,0)/times.length)+' ms';$('progress').textContent=times.length+' / 5';$('instruction').textContent='تم تسجيل المحاولة';timer=setTimeout(next,750)}function finish(){phase='idle';$('start').disabled=false;$('target').disabled=true;$('target').className='rounded-full w-44 h-44 bg-[#1d5d67] text-white text-3xl font-bold';$('target').textContent='تم';const avg=Math.round(times.reduce((a,b)=>a+b,0)/times.length),accuracy=Math.round(100*times.length/(times.length+early));const record={id:Date.now(),date:new Date().toISOString(),type:'reaction',avg,accuracy,early,times:[...times]};sessions.unshift(record);persist();$('instruction').textContent='اكتملت الجلسة! متوسطك '+avg+' ms';timer=setTimeout(()=>show('results'),1200)}$('start').onclick=()=>{reset();phase='waiting';$('start').disabled=true;next()};$('reset').onclick=reset;$('target').onclick=respond;document.addEventListener('keydown',e=>{if(e.code==='Space'&&$('reaction').classList.contains('hidden')===false&&e.target.tagName!=='INPUT'&&e.target.tagName!=='BUTTON'){e.preventDefault();respond()}});
-let faceModel=null,visionRunning=false,visionRaf=0,visionStart=0,blinkCount=0,closedFrames=0,openFrames=0,wasClosed=false,lastBlink=0,lastVideoTime=-1,visionSession=null;
-const pointDistance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-function eyeAspectRatio(points,ids){const p=ids.map(i=>points[i]);return(pointDistance(p[1],p[5])+pointDistance(p[2],p[4]))/(2*pointDistance(p[0],p[3]));}
-async function loadVisionModel(){
- if(faceModel)return;
- const providers=[
-  {module:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs',wasm:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm'},
-  {module:'https://unpkg.com/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs',wasm:'https://unpkg.com/@mediapipe/tasks-vision@1.2.3/wasm'}
- ];
- let lastError;
- for(const provider of providers){
-  try{
-   const {FaceLandmarker,FilesetResolver}=await import(provider.module);
-   const files=await FilesetResolver.forVisionTasks(provider.wasm);
-   faceModel=await FaceLandmarker.createFromOptions(files,{
-    baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',delegate:'CPU'},
-    runningMode:'VIDEO',numFaces:1
-   });
-   return;
-  }catch(error){lastError=error;console.warn('MediaPipe provider failed:',provider.module,error);}
- }
- throw new Error('تعذر تحميل مكتبة تحليل العين من مزودي الخدمة. تحقق من اتصال الإنترنت أو حظر CDN. '+(lastError?.message||''));
-}
-function visionLoop(){if(!visionRunning)return;try{const video=$('video');if(video.readyState>=2&&video.currentTime!==lastVideoTime){lastVideoTime=video.currentTime;const face=faceModel.detectForVideo(video,performance.now()).faceLandmarks?.[0];if(face){$('faceStatus').textContent='متصل';const ratio=(eyeAspectRatio(face,[33,160,158,133,153,144])+eyeAspectRatio(face,[362,385,387,263,373,380]))/2;if(ratio<.19){closedFrames++;openFrames=0;if(closedFrames>=2)wasClosed=true;}else if(ratio>.22){openFrames++;if(wasClosed&&openFrames>=2&&performance.now()-lastBlink>250){blinkCount++;lastBlink=performance.now();$('blinks').textContent=blinkCount;}if(openFrames>=2){wasClosed=false;closedFrames=0;}}}else{$('faceStatus').textContent='لا يوجد وجه';wasClosed=false;closedFrames=0;openFrames=0;}}const sec=Math.floor((performance.now()-visionStart)/1000);$('eyeDuration').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');$('blinkRate').textContent=sec>=10?(blinkCount*60/sec).toFixed(1):'—';}catch(e){$('visionMessage').textContent='تعذر التحليل: '+e.message;stopCamera();return;}visionRaf=requestAnimationFrame(visionLoop);}
-function stopCamera(){if(visionRunning){const seconds=Math.round((performance.now()-visionStart)/1000);if(seconds>=10)visionSession={seconds,blinks:blinkCount,rate:+(blinkCount*60/seconds).toFixed(1)};}visionRunning=false;cancelAnimationFrame(visionRaf);if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const video=$('video');video.pause();video.srcObject=null;$('cameraPlaceholder').classList.remove('hidden');$('cameraToggle').textContent='تشغيل الكاميرا';$('cameraToggle').disabled=false;$('faceStatus').textContent='—';$('saveBlinks').disabled=!visionSession;}
-$('cameraToggle').onclick=async()=>{if(stream){stopCamera();return;}const button=$('cameraToggle');button.disabled=true;$('visionMessage').textContent='جارٍ تحميل نموذج التحليل وطلب إذن الكاميرا...';try{if(!navigator.mediaDevices?.getUserMedia)throw Error('يتطلب التشغيل HTTPS وإذن الكاميرا');await loadVisionModel();stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});$('video').srcObject=stream;await $('video').play();visionRunning=true;visionStart=performance.now();blinkCount=0;closedFrames=0;openFrames=0;wasClosed=false;lastBlink=0;lastVideoTime=-1;visionSession=null;$('blinks').textContent='0';$('blinkRate').textContent='—';$('eyeDuration').textContent='00:00';$('saveBlinks').disabled=true;$('cameraPlaceholder').classList.add('hidden');button.textContent='إيقاف الكاميرا';$('visionMessage').textContent='الكاميرا تعمل. حافظ على إضاءة جيدة. عتبات الرمش تجريبية وقد تتأثر بزاوية الوجه والنظارات.';visionLoop();}catch(e){$('visionMessage').textContent='تعذر التشغيل: '+e.message;stopCamera();}finally{button.disabled=false;}};
-$('saveBlinks').onclick=()=>{if(!visionSession)return;sessions.unshift({id:Date.now(),date:new Date().toISOString(),type:'blink',...visionSession});persist();visionSession=null;$('saveBlinks').disabled=true;show('results');};
-const coords=[[10,12],[75,15],[43,42],[13,75],[78,72]];$('eyeStart').onclick=()=>{eyeHits=0;eyeResult=null;eyeStarted=performance.now();$('eyeSave').disabled=true;$('eyeTarget').classList.remove('hidden');moveEye();};function moveEye(){const p=coords[eyeHits];if(!p)return;$('eyeTarget').style.left=p[0]+'%';$('eyeTarget').style.top=p[1]+'%';$('eyeInfo').textContent='انقر على الهدف: '+(eyeHits+1)+' / 5'}$('eyeTarget').onclick=()=>{eyeHits++;if(eyeHits===5){eyeResult={seconds:Math.round((performance.now()-eyeStarted)/100)/10,hits:5};$('eyeTarget').classList.add('hidden');$('eyeSave').disabled=false;$('eyeInfo').textContent='اكتمل اختبار النقر على الأهداف خلال '+eyeResult.seconds+' ثانية. هذا ليس قياسًا لحركة العين.'}else moveEye()};$('eyeSave').onclick=()=>{if(!eyeResult)return;sessions.unshift({id:Date.now(),date:new Date().toISOString(),type:'visual',...eyeResult});persist();eyeResult=null;$('eyeSave').disabled=true;show('results')};
-function renderResults(){const r=sessions.find(x=>x.type==='reaction');$('resultAvg').textContent=r?r.avg+' ms':'لا توجد بيانات';$('resultAccuracy').textContent=r?r.accuracy+'%':'لا توجد بيانات';$('resultScore').textContent=r?'غير معتمد':'لا توجد بيانات';$('logs').replaceChildren();for(const s of sessions){const tr=document.createElement('tr');tr.className='border-b';const vals=[new Date(s.date).toLocaleString('ar-SA'),s.type==='reaction'?'زمن الاستجابة':s.type==='blink'?'تحليل الرمش':'متابعة هدف بصري',s.type==='reaction'?s.avg+' ms':s.type==='blink'?s.blinks+' رمشة':s.seconds+' ثانية',s.type==='reaction'?'الدقة '+s.accuracy+'%، مبكر '+s.early:s.type==='blink'?'معدل '+s.rate+'/دقيقة، مدة '+s.seconds+' ثانية':'نقرات '+s.hits];for(const val of vals){const td=document.createElement('td');td.className='p-3';td.textContent=val;tr.appendChild(td)}$('logs').appendChild(tr)}if(chart){chart.destroy();chart=null}if(window.Chart){chart=new Chart($('chart'),{type:'line',data:{labels:r?r.times.map((_,i)=>'محاولة '+(i+1)):[],datasets:[{data:r?r.times:[],label:'مللي ثانية',borderColor:'#e07a5f',backgroundColor:'#e07a5f33',tension:.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false}})}}$('export').onclick=()=>{const rows=[['date','type','average_ms','accuracy_pct','early_clicks','trial_times_ms','visual_seconds','hits','blinks','blink_rate'],...sessions.map(s=>[s.date,s.type,s.avg??'',s.accuracy??'',s.early??'',s.times?.join('|')??'',s.seconds??'',s.hits??'',s.blinks??'',s.rate??''])];const csv='\ufeff'+rows.map(row=>row.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='cognitive-fatigue-sessions.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};$('saveSettings').onclick=()=>{settings={name:$('username').value.trim(),email:$('email').value.trim(),sound:$('sound').checked};try{localStorage.setItem(settingsKey,JSON.stringify(settings));$('settingsMessage').textContent='تم حفظ الإعدادات على هذا الجهاز'}catch{$('settingsMessage').textContent='تعذر الحفظ'}};$('clearLogs').onclick=()=>{if(confirm('هل تريد حذف جميع الجلسات المحفوظة؟')){sessions=[];persist();renderResults()}};document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase!=='idle')reset()});window.addEventListener('pagehide',stopCamera);show('home');</script></body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مؤشر الإجهاد المعرفي | Cognitive Fatigue Index</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for Dashboard Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f3a42',      /* الكحلي/التيل الداكن للهيدر والشريط الجانبي */
+                            primary: '#1d5d67',   /* الأزرق التيل الأساسي */
+                            light: '#e6f0f2',     /* خلفيات العناصر المضيئة */
+                            accent: '#e07a5f',    /* المرجاني/البرتقالي المميز */
+                            accentHover: '#d0694e',
+                            bg: '#f4f7f8'         /* خلفية التطبيق العامة */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f4f7f8;
+            user-select: none;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1d5d67;
+            border-radius: 10px;
+        }
+        /* Pulsing & animation utility classes */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .pulse-effect {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+        /* Gauge meter styling */
+        .gauge-meter {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-brand-bg text-gray-800 min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-brand-dark text-white p-4 flex justify-between items-center z-50 sticky top-0 shadow-md">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="bg-white/10 p-2 rounded-lg">
+                <i class="fa-solid font-bold fa-eye text-brand-accent text-xl"></i>
+            </div>
+            <span class="font-bold text-lg">مؤشر الإجهاد المعرفي</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-white hover:text-brand-accent text-2xl focus:outline-none">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 right-0 z-40 w-64 bg-brand-dark text-white transform translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between shadow-xl md:shadow-none">
+        <div>
+            <!-- Logo Section -->
+            <div class="p-6 text-center border-b border-white/10 flex flex-col items-center">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-3 text-brand-accent border border-white/20 shadow-inner">
+                    <i class="fa-solid fa-eye-dropper text-3xl hidden"></i>
+                    <div class="relative flex items-center justify-center">
+                        <i class="fa-solid fa-eye text-3xl text-brand-accent"></i>
+                        <i class="fa-solid fa-chart-simple text-xs text-white absolute -top-1 -left-2"></i>
+                    </div>
+                </div>
+                <h1 class="font-bold text-xl tracking-wide">مؤشر الإجهاد المعرفي</h1>
+                <p class="text-xs text-gray-300 mt-1 font-light">Cognitive Fatigue Index</p>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="p-4 space-y-2">
+                <button onclick="switchTab('home')" id="nav-home" class="nav-item w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl transition font-medium text-white bg-brand-primary shadow-sm">
+                    <i class="fa-solid fa-house w-6 text-center"></i>
+                    <span>الرئيسية</span>
+                </button>
+                <button onclick="switchTab('tests')" id="nav-tests" class="nav-item w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl transition font-medium text-gray-300 hover:bg-white/10 hover:text-white">
+                    <i class="fa-solid fa-vial-circle-check w-6 text-center"></i>
+                    <span>الاختبارات</span>
+                </button>
+                <button onclick="switchTab('results')" id="nav-results" class="nav-item w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl transition font-medium text-gray-300 hover:bg-white/10 hover:text-white">
+                    <i class="fa-solid fa-chart-pie w-6 text-center"></i>
+                    <span>النتائج والتقارير</span>
+                </button>
+                <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl transition font-medium text-gray-300 hover:bg-white/10 hover:text-white">
+                    <i class="fa-solid fa-gear w-6 text-center"></i>
+                    <span>الإعدادات</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- User Profile Card in Sidebar -->
+        <div class="p-4 border-t border-white/10">
+            <div class="flex items-center space-x-3 space-x-reverse bg-white/5 p-3 rounded-xl border border-white/10">
+                <div class="w-10 h-10 rounded-full bg-brand-accent flex items-center justify-center font-bold text-white text-lg">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-xs text-gray-400">مرحباً بك</p>
+                    <p id="sidebarUserName" class="text-sm font-bold text-white truncate">مستخدم تجريبي</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Overlay for Mobile Sidebar -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+
+        <!-- Top Header Notification Bar -->
+        <header class="flex justify-between items-center mb-8 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <div>
+                <h2 id="pageTitle" class="text-2xl font-bold text-brand-dark">الرئيسية</h2>
+                <p id="pageSubtitle" class="text-xs text-gray-500 mt-1">قس تركيزك وأداءك الذهني بدقة من خلال اختبارات التفاعل وحركة العين</p>
+            </div>
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <button title="الإشعارات" class="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition relative">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="absolute top-2 left-2 w-2 h-2 bg-brand-accent rounded-full"></span>
+                </button>
+                <div class="hidden sm:flex items-center space-x-2 space-x-reverse bg-teal-50 text-brand-primary px-3 py-1.5 rounded-xl border border-teal-100 text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>النظام متصل وجاهز</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Screen Views Container -->
+        <div id="viewsContainer">
+
+            <!-- SCREEN 1: HOME DASHBOARD -->
+            <section id="view-home" class="space-y-6">
+                <!-- Welcome Banner -->
+                <div class="relative bg-gradient-to-r from-brand-dark to-brand-primary rounded-3xl p-6 md:p-8 text-white shadow-lg overflow-hidden">
+                    <div class="absolute -left-10 -bottom-10 opacity-10 pointer-events-none">
+                        <i class="fa-solid fa-eye text-[200px]"></i>
+                    </div>
+                    <div class="max-w-xl relative z-10">
+                        <span class="bg-brand-accent/30 text-brand-accent border border-brand-accent/40 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-3 inline-block">مؤشر التركيز الذكي</span>
+                        <h3 class="text-2xl md:text-3xl font-extrabold mb-2">معاً نحو تركيز أفضل وأداء أعلى</h3>
+                        <p class="text-gray-200 text-sm leading-relaxed mb-6">
+                            يقدم تطبيق مؤشر الإجهاد المعرفي أدوات دقيقة لقياس استجابة المخ وتحليل إجهاد العقل عبر تتبع أزمنة الاستجابة البصرية وحركة العين بصورة فورية.
+                        </p>
+                        <button onclick="switchTab('tests')" class="bg-brand-accent hover:bg-brand-accentHover text-white px-6 py-3 rounded-xl font-bold shadow-md transition flex items-center space-x-2 space-x-reverse group">
+                            <span>ابدأ الاختبار الآن</span>
+                            <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Test Cards Selection Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Reaction Time Test Card -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-stopwatch"></i>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-bold text-gray-800 text-lg">اختبار زمن الاستجابة</h4>
+                                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full font-bold">متوفر الآن</span>
+                            </div>
+                            <p class="text-gray-500 text-xs leading-relaxed mb-6">
+                                يعرض محفز بصري عالي الدقة على الشاشة ويقيس السرعة بالمللي ثانية لرد فعلك العصبي والتركيز.
+                            </p>
+                        </div>
+                        <button onclick="startReactionTest()" class="w-full bg-gray-50 hover:bg-brand-primary hover:text-white text-gray-700 py-2.5 rounded-xl font-bold border border-gray-200 transition text-sm flex items-center justify-center space-x-2 space-x-reverse">
+                            <i class="fa-solid fa-play text-xs"></i>
+                            <span>بدء الاختبار</span>
+                        </button>
+                    </div>
+
+                    <!-- Eye Tracking Analysis Card -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 bg-teal-50 text-brand-primary rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-eye"></i>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-bold text-gray-800 text-lg">تحليل حركة العين</h4>
+                                <span class="text-[10px] bg-brand-light text-brand-primary px-2.5 py-0.5 rounded-full font-bold">محاكاة تفاعلية</span>
+                            </div>
+                            <p class="text-gray-500 text-xs leading-relaxed mb-6">
+                                يتم استخدام كاميرا الجهاز لتحليل أنماط حركة العين، اتجاه النظر، وثبات النظرة عند ملاحقة الأهداف.
+                            </p>
+                        </div>
+                        <button onclick="openEyeTracker()" class="w-full bg-gray-50 hover:bg-brand-primary hover:text-white text-gray-700 py-2.5 rounded-xl font-bold border border-gray-200 transition text-sm flex items-center justify-center space-x-2 space-x-reverse">
+                            <i class="fa-solid fa-camera text-xs"></i>
+                            <span>فتح المحاكاة</span>
+                        </button>
+                    </div>
+
+                    <!-- Results Dashboard Quick Access -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                        <div>
+                            <div class="w-12 h-12 bg-rose-50 text-brand-accent rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-bold text-gray-800 text-lg">عرض النتائج والتقارير</h4>
+                                <span class="text-[10px] bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full font-bold">تحديث فوري</span>
+                            </div>
+                            <p class="text-gray-500 text-xs leading-relaxed mb-6">
+                                استعراض مؤشر الإجهاد المعرفي العام، متوسط زَمَن الاستجابة، ونسبة الدقة ومخطط الجلسات التاريخية.
+                            </p>
+                        </div>
+                        <button onclick="switchTab('results')" class="w-full bg-gray-50 hover:bg-brand-primary hover:text-white text-gray-700 py-2.5 rounded-xl font-bold border border-gray-200 transition text-sm flex items-center justify-center space-x-2 space-x-reverse">
+                            <i class="fa-solid fa-chart-pie text-xs"></i>
+                            <span>عرض التقارير</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCREEN 2: TEST SELECTION PAGE -->
+            <section id="view-tests" class="hidden space-y-6">
+                <div class="text-center max-w-lg mx-auto my-4">
+                    <h3 class="text-xl font-bold text-gray-800">اختر نوع الاختبار الذي ترغب في البدء به</h3>
+                    <p class="text-gray-500 text-xs mt-1">تأكد من وجودك في بيئة هادئة وتركيز نظرك جيدا على الشاشة</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <!-- Option 1: Reaction Test -->
+                    <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-md hover:shadow-xl transition flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-teal-50 text-brand-primary rounded-full flex items-center justify-center text-3xl mb-6 shadow-inner">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800 mb-2">اختبار زمن الاستجابة</h4>
+                        <p class="text-gray-500 text-xs leading-relaxed mb-8 px-4">
+                            يعرض محفز بصري على الشاشة ويتم قياس زمن استجابتك وردة فعلك بالمللي ثانية لتقييم السرعة الإدراكية والتفاعل العصبي.
+                        </p>
+                        <button onclick="startReactionTest()" class="w-full bg-brand-primary hover:bg-brand-dark text-white font-bold py-3 px-6 rounded-xl transition shadow-md flex items-center justify-center space-x-2 space-x-reverse">
+                            <span>بدء الاختبار</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </div>
+
+                    <!-- Option 2: Eye Tracking -->
+                    <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-md hover:shadow-xl transition flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-rose-50 text-brand-accent rounded-full flex items-center justify-center text-3xl mb-6 shadow-inner">
+                            <i class="fa-regular fa-eye"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-800 mb-2">تحليل حركة العين</h4>
+                        <p class="text-gray-500 text-xs leading-relaxed mb-8 px-4">
+                            يتم استخدام كاميرا الجهاز للتحليل المباشر لأنماط حركة العين وتثبيت النظر عند متابعة الهدف للتحقق من الإجهاد البصري.
+                        </p>
+                        <button onclick="openEyeTracker()" class="w-full bg-brand-accent hover:bg-brand-accentHover text-white font-bold py-3 px-6 rounded-xl transition shadow-md flex items-center justify-center space-x-2 space-x-reverse">
+                            <span>بدء التحليل</span>
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCREEN 3: INTERACTIVE REACTION TIME TEST -->
+            <section id="view-reaction-test" class="hidden space-y-6">
+                <!-- Back Header -->
+                <div class="flex justify-between items-center">
+                    <button onclick="switchTab('tests')" class="text-brand-primary hover:text-brand-dark font-bold text-sm flex items-center space-x-2 space-x-reverse">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        <span>العودة للاختبارات</span>
+                    </button>
+                    <div class="text-sm font-bold text-gray-600">
+                        اختبار زمن الاستجابة البصرية
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Main Interaction Target Canvas Area -->
+                    <div class="md:col-span-2 bg-white rounded-3xl p-8 border border-gray-100 shadow-md flex flex-col items-center justify-between min-h-[420px] relative overflow-hidden">
+                        
+                        <!-- Top Prompt Status Bar -->
+                        <div id="testInstructionBar" class="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-full text-xs font-bold transition-all text-center">
+                            اضغط على زر (ابدأ الاختبار) للبدء
+                        </div>
+
+                        <!-- Clickable Target Center Area -->
+                        <div class="my-auto flex flex-col items-center justify-center w-full">
+                            <button id="reactionTargetBtn" disabled onclick="handleTargetClick()" class="w-36 h-36 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-4xl shadow-lg transition-all duration-150 transform scale-100 active:scale-95 cursor-pointer disabled:cursor-not-allowed">
+                                <i class="fa-solid fa-plus text-5xl"></i>
+                            </button>
+                            <p id="targetHint" class="text-xs text-gray-400 mt-4">حافظ على تركيزك وأبصر نظرك على الشاشة</p>
+                        </div>
+
+                        <!-- Progress Bar & Trial Indicator -->
+                        <div class="w-full max-w-md">
+                            <div class="flex justify-between text-xs text-gray-500 font-bold mb-1">
+                                <span>التقدم في المحاولات</span>
+                                <span id="trialCounterText">0 / 5</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                                <div id="trialProgressBar" class="bg-brand-primary h-2.5 rounded-full transition-all duration-300 w-0"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Live Dashboard Stats -->
+                    <div class="space-y-6">
+                        <!-- Live Time Display Widget -->
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md text-center flex flex-col items-center justify-center">
+                            <p class="text-xs text-gray-400 font-bold mb-1">الوقت المستغرق (المحاولة الأخيرة)</p>
+                            <div class="flex items-baseline justify-center space-x-1 space-x-reverse my-2">
+                                <span id="liveMsDisplay" class="text-5xl font-black text-brand-dark">---</span>
+                                <span class="text-sm font-bold text-gray-400">ms</span>
+                            </div>
+                            <div class="w-full border-t border-gray-100 pt-3 mt-2 flex justify-around text-xs text-gray-500">
+                                <div>
+                                    <span class="block text-gray-400">الأسرع</span>
+                                    <span id="bestMsDisplay" class="font-bold text-emerald-600">---</span>
+                                </div>
+                                <div class="border-r border-gray-100 pr-4">
+                                    <span class="block text-gray-400">المتوسط</span>
+                                    <span id="avgMsDisplay" class="font-bold text-brand-primary">---</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Controls & Action Button Card -->
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md space-y-4">
+                            <button id="startTestBtn" onclick="initiateReactionTestRun()" class="w-full bg-brand-primary hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center space-x-2 space-x-reverse">
+                                <i class="fa-solid fa-play"></i>
+                                <span>ابدأ الجلسة الآن</span>
+                            </button>
+
+                            <button id="resetTestBtn" onclick="resetReactionTest()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center space-x-2 space-x-reverse">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span>إعادة الضبط</span>
+                            </button>
+
+                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 leading-relaxed flex items-start space-x-2 space-x-reverse">
+                                <i class="fa-solid fa-lightbulb text-amber-500 text-sm mt-0.5"></i>
+                                <span>عند النقر على "ابدأ"، سيتغير لون الدائرة للون الأخضر بصورة عشوائية. اضغط عليها فور تغير لونها بأسرع وقت ممكن!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCREEN 4: EYE TRACKING SIMULATION / WEBCAM VIEW -->
+            <section id="view-eye-test" class="hidden space-y-6">
+                <!-- Back Header -->
+                <div class="flex justify-between items-center">
+                    <button onclick="switchTab('tests')" class="text-brand-primary hover:text-brand-dark font-bold text-sm flex items-center space-x-2 space-x-reverse">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        <span>العودة للاختبارات</span>
+                    </button>
+                    <div class="text-sm font-bold text-gray-600">
+                        تحليل حركة العين والتركيز البصري
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- WebCam Tracking Interactive Box -->
+                    <div class="md:col-span-2 bg-white rounded-3xl p-6 border border-gray-100 shadow-md flex flex-col items-center">
+                        <div class="relative w-full aspect-video bg-gray-900 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+                            <!-- Real WebCam Video or Simulated Eyes Feed -->
+                            <video id="webcamVideo" autoplay playsinline muted class="w-full h-full object-cover hidden transform -scale-x-100"></video>
+
+                            <!-- Placeholder Simulation Canvas/Animation if camera is disabled -->
+                            <div id="simulatedEyeFeed" class="relative w-full h-full bg-slate-950 flex items-center justify-center overflow-hidden">
+                                <!-- Grid Lines overlay -->
+                                <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+                                
+                                <!-- Face Silhouette Illustration -->
+                                <div class="relative flex space-x-12 space-x-reverse items-center opacity-80">
+                                    <!-- Eye Left -->
+                                    <div class="w-20 h-12 border-2 border-emerald-400/60 rounded-full flex items-center justify-center relative">
+                                        <div id="simPupilLeft" class="w-6 h-6 bg-emerald-400 rounded-full shadow-[0_0_12px_#34d399] transition-all duration-200"></div>
+                                    </div>
+                                    <!-- Eye Right -->
+                                    <div class="w-20 h-12 border-2 border-emerald-400/60 rounded-full flex items-center justify-center relative">
+                                        <div id="simPupilRight" class="w-6 h-6 bg-emerald-400 rounded-full shadow-[0_0_12px_#34d399] transition-all duration-200"></div>
+                                    </div>
+                                </div>
+                                <!-- Target Tracking Box -->
+                                <div id="trackingBoundingBox" class="absolute w-64 h-36 border-2 border-dashed border-teal-400/70 rounded-xl flex items-center justify-center pointer-events-none transition-all duration-300">
+                                    <span class="text-[10px] text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded absolute -top-3">جاري التتبع: ألياف العين</span>
+                                </div>
+                            </div>
+
+                            <!-- Live Floating Overlay Hint -->
+                            <div class="absolute bottom-4 left-0 right-0 mx-auto w-max bg-black/60 backdrop-blur-md text-white text-xs px-4 py-2 rounded-full border border-white/10 flex items-center space-x-2 space-x-reverse">
+                                <i class="fa-solid fa-eye text-emerald-400 animate-pulse"></i>
+                                <span>يرجى تثبيت النظر على النقطة المتحركة</span>
+                            </div>
+                        </div>
+
+                        <!-- Direction Target Buttons Simulation -->
+                        <div class="mt-6 flex flex-col items-center w-full max-w-sm">
+                            <p class="text-xs text-gray-500 mb-3 font-semibold">حرك النظرة لمتابعة الاتجاهات التالية:</p>
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <button onclick="moveSimulatedGaze('left')" class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-brand-primary hover:text-white transition flex items-center justify-center text-gray-700">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                                <div class="flex flex-col space-y-2">
+                                    <button onclick="moveSimulatedGaze('up')" class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-brand-primary hover:text-white transition flex items-center justify-center text-gray-700">
+                                        <i class="fa-solid fa-arrow-up"></i>
+                                    </button>
+                                    <button onclick="moveSimulatedGaze('down')" class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-brand-primary hover:text-white transition flex items-center justify-center text-gray-700">
+                                        <i class="fa-solid fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                                <button onclick="moveSimulatedGaze('right')" class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-brand-primary hover:text-white transition flex items-center justify-center text-gray-700">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left Realtime Eye Indicator Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Camera & Sensors Status Card -->
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md">
+                            <h4 class="font-bold text-gray-800 text-sm mb-4 border-b border-gray-100 pb-2">حالة الكاميرا والمستشعرات</h4>
+                            <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-2xl border border-emerald-100 mb-4">
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span class="text-xs font-bold text-emerald-800" id="cameraStatusText">متصلة (وضع المحاكاة)</span>
+                                </div>
+                                <button onclick="toggleWebcam()" class="text-xs text-brand-primary underline font-semibold">تغيير</button>
+                            </div>
+
+                            <div class="space-y-3 text-xs">
+                                <div class="flex justify-between items-center p-2 rounded-lg bg-gray-50">
+                                    <span class="text-gray-500">اتجاه النظر:</span>
+                                    <span id="gazeDirText" class="font-bold text-gray-800">مركزي (مباشر)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded-lg bg-gray-50">
+                                    <span class="text-gray-500">سرعة التتبع:</span>
+                                    <span id="trackingSpeedText" class="font-bold text-emerald-600">ممتازة (98%)</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2 rounded-lg bg-gray-50">
+                                    <span class="text-gray-500">ثبات النظرة:</span>
+                                    <span id="gazeStabilityText" class="font-bold text-brand-primary">مستقر جداً</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button Card -->
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md">
+                            <button onclick="saveEyeAnalysisAndProceed()" class="w-full bg-brand-primary hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center space-x-2 space-x-reverse">
+                                <i class="fa-solid fa-check"></i>
+                                <span>حفظ نتائج التحليل</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCREEN 5: RESULTS & REPORTS DASHBOARD -->
+            <section id="view-results" class="hidden space-y-6">
+                
+                <!-- Main KPI Stats Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    
+                    <!-- Overall Cognitive Fatigue Index Score Card (Gauge Meter) -->
+                    <div class="md:col-span-1 bg-white rounded-3xl p-6 border border-gray-100 shadow-md flex flex-col items-center justify-center text-center">
+                        <h4 class="text-xs font-bold text-gray-500 mb-2">مؤشر الإجهاد المعرفي</h4>
+                        
+                        <!-- Circular Progress Gauge -->
+                        <div class="relative w-36 h-36 flex items-center justify-center my-2">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <!-- Background Circle -->
+                                <circle cx="50" cy="50" r="40" stroke="#f1f5f9" stroke-width="10" fill="transparent" />
+                                <!-- Progress Gauge Circle -->
+                                <circle id="gaugeCircle" cx="50" cy="50" r="40" stroke="#e07a5f" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="95" stroke-linecap="round" fill="transparent" class="transition-all duration-1000 ease-out" />
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="fatigueScoreVal" class="text-3xl font-extrabold text-brand-dark">62</span>
+                                <span class="text-[10px] text-gray-400 font-bold">من 100</span>
+                            </div>
+                        </div>
+
+                        <span id="fatigueBadge" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold mt-1">إجهاد متوسط</span>
+                    </div>
+
+                    <!-- Key Metrics Cards -->
+                    <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md flex flex-col justify-between">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg mb-2">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold">متوسط زمن الاستجابة</p>
+                                <h3 id="resAvgResponseTime" class="text-2xl font-black text-brand-dark mt-1">452 ms</h3>
+                            </div>
+                            <span class="text-[11px] text-emerald-600 font-semibold mt-2 block"> ضمن النطاق الطبيعي</span>
+                        </div>
+
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md flex flex-col justify-between">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg mb-2">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold">دقة الاستجابات</p>
+                                <h3 id="resAccuracy" class="text-2xl font-black text-brand-dark mt-1">96%</h3>
+                            </div>
+                            <span class="text-[11px] text-emerald-600 font-semibold mt-2 block"> أدائية عالية جداً</span>
+                        </div>
+
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md flex flex-col justify-between">
+                            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg mb-2">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold">معدل الأخطاء</p>
+                                <h3 id="resErrorRate" class="text-2xl font-black text-brand-dark mt-1">4%</h3>
+                            </div>
+                            <span class="text-[11px] text-gray-400 font-semibold mt-2 block">منخفض جداً</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Response Time Chart Section -->
+                <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h4 class="font-bold text-brand-dark text-base">زمن الاستجابة عبر المحاولات</h4>
+                            <p class="text-xs text-gray-400">تتبع استجابتك البصرية بالمللي ثانية في الجلسة الأخيرة</p>
+                        </div>
+                        <span class="bg-teal-50 text-brand-primary text-xs font-bold px-3 py-1 rounded-full border border-teal-100">الجلسة الحالية</span>
+                    </div>
+                    <div class="h-64 w-full">
+                        <canvas id="reactionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Sessions Logs Table -->
+                <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-md overflow-hidden">
+                    <h4 class="font-bold text-brand-dark text-base mb-4">سجل الجلسات السابقة</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-gray-50 text-gray-500 font-bold border-b border-gray-100">
+                                <tr>
+                                    <th class="p-3">التاريخ</th>
+                                    <th class="p-3">نوع الاختبار</th>
+                                    <th class="p-3">مؤشر الإجهاد المعرفي</th>
+                                    <th class="p-3">النتيجة والتقييم</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessionsTableBody" class="divide-y divide-gray-100 text-gray-700">
+                                <!-- Dynamic Rows JS Filled -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCREEN 6: SETTINGS -->
+            <section id="view-settings" class="hidden space-y-6 max-w-3xl mx-auto">
+                <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-md space-y-6">
+                    <h3 class="text-xl font-bold text-brand-dark border-b border-gray-100 pb-4">إعدادات الحساب والنظام</h3>
+
+                    <!-- Profile Info Form -->
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 space-x-reverse mb-6">
+                            <div class="w-20 h-20 rounded-full bg-brand-primary text-white flex items-center justify-center text-3xl font-bold shadow-md">
+                                <i class="fa-solid fa-user-gear"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-base" id="settingsDisplayName">مستخدم تجريبي</h4>
+                                <p class="text-xs text-gray-400">حساب تجريبي نشط</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">الاسم الكامل</label>
+                                <input type="text" id="inputUserName" value="مستخدم تجريبي" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">البريد الإلكتروني</label>
+                                <input type="email" id="inputUserEmail" value="user@example.com" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-primary">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toggles & Features -->
+                    <div class="pt-4 border-t border-gray-100 space-y-4">
+                        <h4 class="font-bold text-gray-800 text-sm">تفضيلات الكاميرا والاختبارات</h4>
+                        
+                        <div class="flex justify-between items-center py-2">
+                            <div>
+                                <p class="text-xs font-bold text-gray-700">تفعيل خيار التتبع بالكاميرا الحقيقية</p>
+                                <p class="text-[11px] text-gray-400">السماح للتطبيق باستخدام كاميرا الجهاز عند البدء</p>
+                            </div>
+                            <input type="checkbox" checked class="w-5 h-5 accent-brand-primary rounded cursor-pointer">
+                        </div>
+
+                        <div class="flex justify-between items-center py-2">
+                            <div>
+                                <p class="text-xs font-bold text-gray-700">التنبيهات الصوتية فور تغيير اللون</p>
+                                <p class="text-[11px] text-gray-400">إصدار صوت خفيف عند ظهور المحفز البصري</p>
+                            </div>
+                            <input type="checkbox" checked class="w-5 h-5 accent-brand-primary rounded cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Save Actions -->
+                    <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3 space-x-reverse">
+                        <button onclick="saveUserSettings()" class="bg-brand-primary hover:bg-brand-dark text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow transition">
+                            حفظ التغييرات
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Global JS Application Code -->
+    <script>
+        // --- State Management ---
+        let currentTab = 'home';
+        let reactionChart = null;
+
+        // Reaction Test State Variables
+        let testActive = false;
+        let testStartTime = 0;
+        let testTimeoutId = null;
+        let currentTrial = 0;
+        const maxTrials = 5;
+        let trialTimes = [];
+        let waitingForClick = false;
+
+        // Session Logs Data Structure
+        let sessionLogs = [
+            { date: '2026/10/23 10:24 ص', type: 'زمن الاستجابة', score: 62, status: 'متوسط', statusClass: 'bg-amber-100 text-amber-700' },
+            { date: '2026/10/22 02:17 م', type: 'زمن الاستجابة', score: 48, status: 'منخفض', statusClass: 'bg-emerald-100 text-emerald-700' },
+            { date: '2026/10/20 11:03 ص', type: 'زمن الاستجابة', score: 75, status: 'مرتفع', statusClass: 'bg-rose-100 text-rose-700' },
+            { date: '2026/10/17 09:45 ص', type: 'زمن الاستجابة', score: 55, status: 'متوسط', statusClass: 'bg-amber-100 text-amber-700' }
+        ];
+
+        // --- Tab Navigation Switcher ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+
+            // Hide all screen sections
+            ['home', 'tests', 'reaction-test', 'eye-test', 'results', 'settings'].forEach(id => {
+                const el = document.getElementById(`view-${id}`);
+                if (el) el.classList.add('hidden');
+            });
+
+            // Show selected section
+            const activeView = document.getElementById(`view-${tabId}`);
+            if (activeView) activeView.classList.remove('hidden');
+
+            // Update Header Title
+            const titles = {
+                'home': ['الرئيسية', 'قس تركيزك وأداءك الذهني بدقة من خلال اختبارات التفاعل وحركة العين'],
+                'tests': ['الاختبارات', 'اختر نوع الاختبار الذي ترغب في إجرائه الآن'],
+                'reaction-test': ['اختبار زمن الاستجابة', 'اضغط على المحفز البصري فور تغير اللون'],
+                'eye-test': ['تحليل حركة العين', 'تتبع الأهداف البصرية لتحليل درجة الإجهاد'],
+                'results': ['النتائج والتقارير', 'ملخص الإجهاد المعرفي وأداء الجلسات الحالية والتاريخية'],
+                'settings': ['الإعدادات', 'تخصيص بيانات الحساب وتفضيلات النظام']
+            };
+
+            if (titles[tabId]) {
+                document.getElementById('pageTitle').innerText = titles[tabId][0];
+                document.getElementById('pageSubtitle').innerText = titles[tabId][1];
+            }
+
+            // Update Sidebar Highlight Navigation
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('bg-brand-primary', 'text-white', 'shadow-sm');
+                btn.classList.add('text-gray-300', 'hover:bg-white/10');
+            });
+
+            const activeNavBtn = document.getElementById(`nav-${tabId}`);
+            if (activeNavBtn) {
+                activeNavBtn.classList.add('bg-brand-primary', 'text-white', 'shadow-sm');
+                activeNavBtn.classList.remove('text-gray-300');
+            }
+
+            // Close Mobile Menu if open
+            closeMobileMenu();
+
+            // Render Chart if navigating to Results View
+            if (tabId === 'results') {
+                renderResultsChart();
+                renderSessionsTable();
+            }
+        }
+
+        // --- Mobile Menu Toggle Logic ---
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleMobileMenu() {
+            sidebar.classList.toggle('translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        }
+
+        function closeMobileMenu() {
+            sidebar.classList.add('translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        sidebarOverlay.addEventListener('click', closeMobileMenu);
+
+        // --- REACTION TEST FUNCTIONALITY ---
+        function startReactionTest() {
+            switchTab('reaction-test');
+            resetReactionTest();
+        }
+
+        function resetReactionTest() {
+            clearTimeout(testTimeoutId);
+            testActive = false;
+            waitingForClick = false;
+            currentTrial = 0;
+            trialTimes = [];
+
+            const btn = document.getElementById('reactionTargetBtn');
+            btn.disabled = true;
+            btn.className = "w-36 h-36 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-4xl shadow-lg cursor-not-allowed";
+            btn.innerHTML = '<i class="fa-solid fa-plus text-5xl"></i>';
+
+            document.getElementById('testInstructionBar').innerText = "اضغط على زر (ابدأ الجلسة) للبدء";
+            document.getElementById('testInstructionBar').className = "bg-gray-100 text-gray-700 px-6 py-2.5 rounded-full text-xs font-bold transition-all text-center";
+            document.getElementById('trialCounterText').innerText = `0 / ${maxTrials}`;
+            document.getElementById('trialProgressBar').style.width = '0%';
+            document.getElementById('liveMsDisplay').innerText = "---";
+            document.getElementById('bestMsDisplay').innerText = "---";
+            document.getElementById('avgMsDisplay').innerText = "---";
+            document.getElementById('startTestBtn').disabled = false;
+        }
+
+        function initiateReactionTestRun() {
+            resetReactionTest();
+            testActive = true;
+            document.getElementById('startTestBtn').disabled = true;
+            nextTrial();
+        }
+
+        function nextTrial() {
+            if (currentTrial >= maxTrials) {
+                finishReactionTest();
+                return;
+            }
+
+            waitingForClick = false;
+            const btn = document.getElementById('reactionTargetBtn');
+            btn.disabled = true;
+            btn.className = "w-36 h-36 rounded-full bg-amber-400 text-white flex items-center justify-center text-4xl shadow-lg transition-all duration-200 cursor-not-allowed pulse-effect";
+            btn.innerHTML = '<i class="fa-solid fa-hourglass-half text-4xl animate-spin"></i>';
+
+            document.getElementById('testInstructionBar').innerText = "انتظر تبيّن واستعداد الدائرة للخضرة...";
+            document.getElementById('testInstructionBar').className = "bg-amber-100 text-amber-800 px-6 py-2.5 rounded-full text-xs font-bold transition-all text-center";
+
+            // Random delay between 1.5s and 4s
+            const randomDelay = Math.floor(Math.random() * 2500) + 1500;
+
+            testTimeoutId = setTimeout(() => {
+                if (!testActive) return;
+                waitingForClick = true;
+                testStartTime = Date.now();
+
+                btn.disabled = false;
+                btn.className = "w-36 h-36 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-4xl shadow-2xl transition-all duration-75 cursor-pointer transform scale-110";
+                btn.innerHTML = '<i class="fa-solid fa-bolt text-5xl"></i>';
+
+                document.getElementById('testInstructionBar').innerText = "اضغط الآن بأسرع ما يمكن!";
+                document.getElementById('testInstructionBar').className = "bg-emerald-500 text-white px-6 py-2.5 rounded-full text-xs font-bold transition-all text-center animate-bounce";
+            }, randomDelay);
+        }
+
+        function handleTargetClick() {
+            if (!waitingForClick) return;
+
+            const reactionTime = Date.now() - testStartTime;
+            trialTimes.push(reactionTime);
+            currentTrial++;
+
+            document.getElementById('liveMsDisplay').innerText = reactionTime;
+
+            // Update Progress
+            document.getElementById('trialCounterText').innerText = `${currentTrial} / ${maxTrials}`;
+            document.getElementById('trialProgressBar').style.width = `${(currentTrial / maxTrials) * 100}%`;
+
+            // Calculate Best & Avg live
+            const bestTime = Math.min(...trialTimes);
+            const avgTime = Math.round(trialTimes.reduce((a, b) => a + b, 0) / trialTimes.length);
+
+            document.getElementById('bestMsDisplay').innerText = `${bestTime} ms`;
+            document.getElementById('avgMsDisplay').innerText = `${avgTime} ms`;
+
+            waitingForClick = false;
+
+            if (currentTrial < maxTrials) {
+                setTimeout(nextTrial, 1000);
+            } else {
+                finishReactionTest();
+            }
+        }
+
+        function finishReactionTest() {
+            testActive = false;
+            const avgTime = Math.round(trialTimes.reduce((a, b) => a + b, 0) / trialTimes.length);
+            
+            // Derive Fatigue Index Score based on response time
+            let fatigueScore = Math.min(100, Math.max(10, Math.round((avgTime / 800) * 100)));
+
+            document.getElementById('testInstructionBar').innerText = `اكتمل الاختبار! متوسط زمنك: ${avgTime} مللي ثانية`;
+            document.getElementById('testInstructionBar').className = "bg-brand-primary text-white px-6 py-2.5 rounded-full text-xs font-bold transition-all text-center";
+
+            // Add session record
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()<10?'0':''}${now.getMinutes()}`;
+            
+            let status = 'متوسط';
+            let statusClass = 'bg-amber-100 text-amber-700';
+            if (fatigueScore < 50) {
+                status = 'منخفض (ممتاز)';
+                statusClass = 'bg-emerald-100 text-emerald-700';
+            } else if (fatigueScore > 70) {
+                status = 'مرتفع';
+                statusClass = 'bg-rose-100 text-rose-700';
+            }
+
+            sessionLogs.unshift({
+                date: dateStr,
+                type: 'زمن الاستجابة',
+                score: fatigueScore,
+                status: status,
+                statusClass: statusClass
+            });
+
+            // Auto navigate to results view after brief timeout
+            setTimeout(() => {
+                switchTab('results');
+            }, 1500);
+        }
+
+        // --- EYE TRACKING SIMULATION FUNCTIONALITY ---
+        function openEyeTracker() {
+            switchTab('eye-test');
+        }
+
+        function moveSimulatedGaze(direction) {
+            const leftPupil = document.getElementById('simPupilLeft');
+            const rightPupil = document.getElementById('simPupilRight');
+            const dirText = document.getElementById('gazeDirText');
+
+            let tx = 0, ty = 0;
+            let text = 'مركزي (مباشر)';
+
+            switch(direction) {
+                case 'left': tx = 15; text = 'يمين النظر'; break;
+                case 'right': tx = -15; text = 'يسار النظر'; break;
+                case 'up': ty = -10; text = 'أعلى النظر'; break;
+                case 'down': ty = 10; text = 'أسفل النظر'; break;
+            }
+
+            leftPupil.style.transform = `translate(${tx}px, ${ty}px)`;
+            rightPupil.style.transform = `translate(${tx}px, ${ty}px)`;
+            dirText.innerText = text;
+        }
+
+        async function toggleWebcam() {
+            const video = document.getElementById('webcamVideo');
+            const simFeed = document.getElementById('simulatedEyeFeed');
+            const statusText = document.getElementById('cameraStatusText');
+
+            if (video.classList.contains('hidden')) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    video.classList.remove('hidden');
+                    simFeed.classList.add('hidden');
+                    statusText.innerText = "متصلة (كاميرا حقيقية)";
+                } catch (err) {
+                    alert('لم نتمكن من الوصول لكاميرا الجهاز. سيتم الاستمرار في وضع المحاكاة البصرية.');
+                }
+            } else {
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                }
+                video.classList.add('hidden');
+                simFeed.classList.remove('hidden');
+                statusText.innerText = "متصلة (وضع المحاكاة)";
+            }
+        }
+
+        function saveEyeAnalysisAndProceed() {
+            alert('تم حفظ بيانات تتبع النظر بنجاح ودمجها مع تقرير الإجهاد المعرفي!');
+            switchTab('results');
+        }
+
+        // --- CHART & DASHBOARD RESULTS RENDER ---
+        function renderResultsChart() {
+            const ctx = document.getElementById('reactionChart');
+            if (!ctx) return;
+
+            if (reactionChart) {
+                reactionChart.destroy();
+            }
+
+            const times = trialTimes.length > 0 ? trialTimes : [420, 480, 410, 490, 460];
+            const labels = times.map((_, i) => `المحاولة ${i + 1}`);
+
+            reactionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'زمن الاستجابة (مللي ثانية)',
+                        data: times,
+                        borderColor: '#e07a5f',
+                        backgroundColor: 'rgba(224, 122, 95, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#1d5d67',
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { family: 'Tajawal' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Tajawal' } }
+                        }
+                    }
+                }
+            });
+
+            // Update Gauge Meter & Score Values
+            const avg = times.reduce((a, b) => a + b, 0) / times.length;
+            const fatigueScore = Math.min(100, Math.max(10, Math.round((avg / 750) * 100)));
+
+            document.getElementById('fatigueScoreVal').innerText = fatigueScore;
+            document.getElementById('resAvgResponseTime').innerText = `${Math.round(avg)} ms`;
+
+            // Adjust stroke gauge
+            const circle = document.getElementById('gaugeCircle');
+            const circumference = 251.2;
+            const offset = circumference - (fatigueScore / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function renderSessionsTable() {
+            const tbody = document.getElementById('sessionsTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = sessionLogs.map(log => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-3 font-semibold text-gray-800">${log.date}</td>
+                    <td class="p-3">${log.type}</td>
+                    <td class="p-3 font-bold">${log.score} من 100</td>
+                    <td class="p-3">
+                        <span class="${log.statusClass} px-2.5 py-0.5 rounded-full font-bold">${log.status}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- SETTINGS USER SAVING ---
+        function saveUserSettings() {
+            const name = document.getElementById('inputUserName').value;
+            if (name) {
+                document.getElementById('sidebarUserName').innerText = name;
+                document.getElementById('settingsDisplayName').innerText = name;
+            }
+            alert('تم حفظ التغييرات والإعدادات بنجاح!');
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            switchTab('home');
+        };
+    </script>
+</body>
+</html>
